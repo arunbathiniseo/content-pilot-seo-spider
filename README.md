@@ -2,8 +2,9 @@
   <img src="branding/out/readme-banner.png" alt="Content Pilot Spider: a local, open-source SEO crawler" width="100%">
 </p>
 
+<h1 align="center">Content Pilot Spider: free, open-source SEO crawler and Screaming Frog alternative</h1>
+
 <p align="center">
-  <b>A free, open-source alternative to Screaming Frog SEO Spider.</b><br>
   Crawl any website from your own computer, find the technical SEO issues, and fix them.<br>
   No URL limit. No licence fee. Your crawl data never leaves your machine.
 </p>
@@ -23,6 +24,13 @@
 </p>
 
 ![The crawl grid with the Issues sidebar: every URL, its status and indexability, and each issue ranked by priority](docs/img/crawl-grid.png)
+
+## What is Content Pilot Spider?
+
+Content Pilot Spider is a free, open-source website crawler and technical SEO audit tool for Windows, macOS and
+Linux. It is a desktop SEO spider in the style of Screaming Frog SEO Spider: it crawls a site the way a search
+engine does and reports broken links, redirect chains, duplicate content, missing titles and meta descriptions,
+canonical and hreflang errors, and more than 300 other checks, with no limit on the number of URLs.
 
 ## Why this exists
 
@@ -206,12 +214,39 @@ The suites need one saved crawl of a few hundred pages in `crawls/` to test agai
 Two house rules for the interface: no emoji or pictographs (use the SVG icons in `ui/icons.js`), and no sample
 data (an empty state names the next action instead).
 
+## Frequently asked questions
+
+**Is Content Pilot Spider really free?**
+Yes. It is open source under the MIT licence, with no paid tier, no licence key and no URL limit.
+
+**How many URLs can it crawl?**
+As many as your computer can hold. Each crawl is one SQLite file on your disk. Very large crawls (50,000 URLs
+and more) work, with short pauses in the interface while analysis runs.
+
+**How is it different from Screaming Frog SEO Spider?**
+It is free and open source, has no 500-URL cap, adds a Site Health score and audit dashboard, writes fixes with
+your own AI key, and can be driven by AI assistants through MCP. Screaming Frog is the more mature product. See
+[How it compares](#how-it-compares).
+
+**Does it render JavaScript?**
+Yes, in headless Chromium, and it shows what changed between the raw and the rendered HTML.
+
+**Does it work on macOS and Linux?**
+Yes, from source, in your browser with `run.py --browser`. It is developed and tested mainly on Windows 11.
+
+**Does it send my crawl data anywhere?**
+No. Crawls, settings and keys stay on your computer. AI and third-party data features only run when you add your
+own key, and only talk to the provider you chose.
+
+**Can I use it for client work or inside a company?**
+Yes. The MIT licence allows commercial use.
+
 ## About
 
 Built by **Arun Bathini**. Content Pilot Spider is the crawler behind
-[contentpilot.cloud](https://contentpilot.cloud).
+[Content Pilot](https://contentpilot.cloud), the SEO content platform at contentpilot.cloud.
 
-Released under the [MIT licence](LICENSE).
+Released under the [MIT licence](LICENSE). Copyright (c) 2026 Arun Bathini, Content Pilot.
 
 Screaming Frog is a trademark of Screaming Frog Ltd. This project is an independent alternative and is not
 affiliated with, endorsed by or connected to Screaming Frog Ltd.

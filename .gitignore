@@ -25,3 +25,6 @@ settings.json
 exports/
 usage.json
 schedules.json
+
+# packaging output
+dist/

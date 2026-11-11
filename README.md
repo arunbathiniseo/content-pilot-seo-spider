@@ -17,7 +17,12 @@
 </p>
 
 <p align="center">
-  <a href="#quick-start">Quick start</a> ·
+  <a href="https://github.com/arunbathiniseo/content-pilot-seo-spider/releases/latest"><img src="https://img.shields.io/badge/Download%20for%20Windows-Setup%20.exe-2ea043?style=for-the-badge&logo=windows" alt="Download Content Pilot Spider for Windows"></a>
+</p>
+
+<p align="center">
+  <a href="#download-for-windows">Download</a> ·
+  <a href="#quick-start-from-source">Run from source</a> ·
   <a href="#what-it-does">What it does</a> ·
   <a href="#how-it-compares">How it compares</a> ·
   <a href="docs/reference.md">Full reference</a>
@@ -122,7 +127,25 @@ Screaming Frog SEO Spider is a mature product with many years of development beh
 Content Pilot Spider is younger: expect rough edges, and please [report what you find](../../issues). Check the
 Screaming Frog website for its current free and paid features.
 
-## Quick start
+## Download for Windows
+
+1. Download **ContentPilotSpider-Setup-1.0.0.exe** from the
+   [latest release](https://github.com/arunbathiniseo/content-pilot-seo-spider/releases/latest) and run it. It
+   installs for your user only, so it needs no administrator rights.
+2. Open **Content Pilot Spider** from the Start menu, type a URL and press **Start**.
+3. For JavaScript rendering, run **Install browser for JavaScript rendering** from the Start menu once. It
+   downloads Chromium (about 150 MB).
+
+Nothing else needs installing: Python and everything the app uses are inside the download. A portable zip that
+runs without installing is on the same release page.
+
+- The installer is not code-signed yet, so Windows SmartScreen shows "Windows protected your PC" the first time.
+  Choose **More info**, then **Run anyway**.
+- PageSpeed audits in the installed app use the PageSpeed Insights API with your own free key. Local Lighthouse
+  audits need the from-source setup below.
+- Your crawls and settings are kept in the installation folder and are left in place if you uninstall.
+
+## Quick start from source
 
 You need **Python 3.10 or newer** and **Node.js 22.19 or newer** (for the grid, the charts and Lighthouse).
 
@@ -230,6 +253,10 @@ your own AI key, and can be driven by AI assistants through MCP. Screaming Frog 
 
 **Does it render JavaScript?**
 Yes, in headless Chromium, and it shows what changed between the raw and the rendered HTML.
+
+**Is there a Windows installer?**
+Yes. Download the Setup file from the [latest release](https://github.com/arunbathiniseo/content-pilot-seo-spider/releases/latest);
+it needs nothing else installed.
 
 **Does it work on macOS and Linux?**
 Yes, from source, in your browser with `run.py --browser`. It is developed and tested mainly on Windows 11.

@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Content Pilot Spider</title>
+<link rel="icon" type="image/svg+xml" href="/ui/mark.svg">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="stylesheet" href="/ui/vendor/node_modules/tabulator-tables/dist/css/tabulator.min.css">
+<link rel="stylesheet" href="/ui/styles.css">
+</head>
+<body>
+<div id="splash" aria-live="polite">
+  <div class="logo"><img src="/ui/mark.svg" alt="" width="64" height="64" style="border-radius: 14px; display: block;"></div>
+  <h1>Content Pilot Spider</h1>
+  <div class="bar"></div>
+  <div class="msg" id="splash-msg">Starting…</div>
+</div>
+<div id="toasts"></div>
+<div id="offline" class="hidden" role="alert"><i data-ic="alert-triangle"></i>Lost connection to the app server. Retrying… If this persists, close and reopen Content Pilot Spider.</div>
+<header id="topbar">
+  <div class="brand"><svg class="brand-mark" viewBox="0 0 512 512" width="20" height="20" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"><path d="M212 214 L150 158 L96 112"/><path d="M202 248 L116 232 L54 242"/><path d="M206 284 L136 322 L72 374"/><path d="M232 302 L198 366 L172 432"/><path d="M300 214 L362 158 L416 112"/><path d="M310 248 L396 232 L458 242"/><path d="M306 284 L376 322 L440 374"/><path d="M280 302 L314 366 L340 432"/></g><g fill="currentColor"><circle cx="96" cy="112" r="24"/><circle cx="54" cy="242" r="24"/><circle cx="72" cy="374" r="24"/><circle cx="172" cy="432" r="24"/><circle cx="416" cy="112" r="24"/><circle cx="458" cy="242" r="24"/><circle cx="440" cy="374" r="24"/><circle cx="340" cy="432" r="24"/></g><circle cx="256" cy="256" r="64" fill="var(--accent)"/></svg> <span>Content Pilot Spider</span></div>
+  <select id="mode" title="Mode">
+    <option value="spider">Spider</option>
+    <option value="sitemap">Sitemap</option>
+    <option value="list">List</option>
+  </select>
+  <input id="start-url" type="text" placeholder="Enter URL to spider, e.g. https://www.example.com" spellcheck="false">
+  <button id="btn-list" class="hidden" title="Paste URLs for List mode">URLs…</button>
+  <button id="btn-start" class="primary">Start</button>
+  <button id="btn-pause" disabled>Pause</button>
+  <button id="btn-stop" disabled>Stop</button>
+  <span class="spacer"></span>
+  <button id="btn-audit" class="primary-outline" title="Site Audit dashboard: health score, errors, themes, trend"><i data-ic="bar-chart"></i>Audit</button>
+  <button id="btn-config" title="Configuration"><i data-ic="settings"></i>Config</button>
+  <button id="btn-crawls" title="Saved crawls"><i data-ic="folder"></i>Crawls</button>
+  <div class="menu">
+    <button id="btn-export"><i data-ic="download"></i>Export<i data-ic="chevron-down" class="caret"></i></button>
+    <div class="menu-items" id="export-menu">
+      <a href="#" data-export="csv">Current filter → CSV</a>
+      <a href="#" data-export="xlsx">Current filter → Excel</a>
+      <a href="#" data-export="issue-inlinks">Current issue → inlinks to affected URLs</a>
+      <a href="#" data-export="issue-both">Current issue → URLs + inlinks (Excel)</a>
+      <a href="#" data-export="md">Copy issues summary (Markdown)</a>
+      <a href="#" data-export="sitemap">XML sitemap…</a>
+      <a href="#" data-export="centre"><b>Export centre… (every combination)</b></a>
+    </div>
+  </div>
+  <div class="menu">
+    <button id="btn-reports"><i data-ic="file-text"></i>Reports<i data-ic="chevron-down" class="caret"></i></button>
+    <div class="menu-items" id="reports-menu"></div>
+  </div>
+  <button id="btn-analysis" title="Re-run crawl analysis"><i data-ic="refresh-cw"></i>Analyse</button>
+  <button id="btn-compare" title="Compare this crawl with an earlier one"><i data-ic="arrow-left-right"></i>Compare</button>
+  <button id="btn-viz" title="Crawl visualisations"><i data-ic="share-2"></i>Visualise</button>
+  <div class="menu">
+    <button id="btn-lh" title="Run Lighthouse (PageSpeed + Accessibility)"><i data-ic="gauge"></i>PageSpeed <span id="lh-count" class="count-pill hidden"></span><i data-ic="chevron-down" class="caret"></i></button>
+    <div class="menu-items" id="lh-menu">
+      <a href="#" data-lh="selected">Selected rows</a>
+      <a href="#" data-lh="filter">All URLs in this filter (max 50)</a>
+      <a href="#" data-lh="sample">Top pages sample (Config → PageSpeed)</a>
+      <a href="#" data-lh="cancel">Cancel running audit</a>
+    </div>
+  </div>
+  <div class="menu">
+    <button id="btn-google" title="Search Console, GA4 and link metrics"><i data-ic="cloud"></i>Data<i data-ic="chevron-down" class="caret"></i></button>
+    <div class="menu-items" id="google-menu">
+      <a href="#" data-g="fetch">Fetch Search Console + GA4 data</a>
+      <a href="#" data-g="inspect">Fetch + inspect index status (URL Inspection)</a>
+      <a href="#" data-g="config">Connect Google / choose properties…</a>
+      <a href="#" data-lm="sample"><b>Link metrics</b> for the top pages (Ahrefs / Moz / Majestic)</a>
+      <a href="#" data-lm="selected">Link metrics for selected rows</a>
+      <a href="#" data-lm="filter">Link metrics for all URLs in this filter</a>
+      <a href="#" data-lm="config">Link metrics API keys…</a>
+    </div>
+  </div>
+  <button id="btn-fixes" title="Review AI fix proposals and push them"><i data-ic="check-square"></i>Fixes <span id="fixes-count" class="count-pill hidden"></span></button>
+  <div class="menu">
+    <button id="btn-help" title="Help"><i data-ic="help-circle"></i>Help<i data-ic="chevron-down" class="caret"></i></button>
+    <div class="menu-items" id="help-menu">
+      <a href="#" id="help-schedules">Scheduled crawls…</a>
+      <a href="#" id="help-usage">Usage &amp; costs…</a>
+      <a href="/api/mcp/tools.md" target="_blank" rel="noopener">MCP tools (Markdown)</a>
+      <a href="/api/export/issues.md" target="_blank" rel="noopener">Issues summary (Markdown)</a>
+    </div>
+  </div>
+</header>
+
+<div id="progress">
+  <div id="progress-bar"><div id="progress-fill"></div></div>
+  <div id="progress-text">Idle. Enter a URL and press Start.</div>
+</div>
+
+<div id="main">
+  <section id="centre">
+    <nav id="tabs"></nav>
+    <div id="toolbar">
+      <label>Filter <select id="filter"></select></label>
+      <input id="search" type="search" placeholder="Search address / title / H1…">
+      <span id="rowcount" class="muted"></span>
+      <button id="colfilters-clear" class="link hidden" title="Remove every column filter"></button>
+      <span id="selection" class="hidden"><span id="selcount"></span> selected · <a href="#" id="sel-copy">Copy URLs</a> · <a href="#" id="sel-export">Export selected</a> · <a href="#" id="sel-clear">Clear</a></span>
+      <span class="spacer"></span>
+      <span id="filter-desc" class="muted"></span>
+      <div class="menu">
+        <button id="btn-fixai" class="primary"><i data-ic="sparkles"></i>Fix with AI<i data-ic="chevron-down" class="caret"></i></button>
+        <div class="menu-items" id="fixai-menu">
+          <a href="#" data-scope="filter">All URLs in this filter</a>
+          <a href="#" data-scope="selected">Selected rows only</a>
+        </div>
+      </div>
+    </div>
+    <div id="issue-bar" class="hidden"></div>
+    <div id="grid"></div>
+    <div id="split-h" class="splitter-h" title="Drag to resize · double-click to reset"></div>
+    <div id="bottom">
+      <nav id="bottom-tabs">
+        <button data-pane="details" class="active">URL Details</button>
+        <button data-pane="inlinks">Inlinks</button>
+        <button data-pane="outlinks">Outlinks</button>
+        <button data-pane="images">Image Details</button>
+        <button data-pane="resources">Resources</button>
+        <button data-pane="serp">SERP Snippet</button>
+        <button data-pane="rendered">Rendered Page</button>
+        <button data-pane="headers">HTTP Headers</button>
+        <button data-pane="cookies">Cookies</button>
+        <button data-pane="source">View Source</button>
+        <button data-pane="console">Console Log</button>
+        <button data-pane="structured">Structured Data</button>
+        <button data-pane="pagespeed">PageSpeed</button>
+        <button data-pane="duplicates">Duplicates</button>
+        <button data-pane="spelling">Spelling &amp; Grammar</button>
+        <button data-pane="issues">Issues</button>
+      </nav>
+      <div id="bottom-body"><div class="muted pad">Select a URL in the table to see its details.</div></div>
+    </div>
+  </section>
+  <div id="split-v" class="splitter-v" title="Drag to resize · double-click to reset"></div>
+  <aside id="sidebar">
+    <nav id="side-tabs">
+      <button data-side="overview" class="active">Overview</button>
+      <button data-side="issues">Issues</button>
+      <button data-side="structure">Site Structure</button>
+    </nav>
+    <div id="side-body"></div>
+  </aside>
+</div>
+
+<!-- Config modal -->
+<div class="modal hidden" id="modal-config">
+  <div class="modal-box wide">
+    <header><h2>Configuration</h2><button class="close" data-close="modal-config" aria-label="Close"><i data-ic="x"></i></button></header>
+    <div class="modal-body" id="config-body"></div>
+    <footer>
+      <button id="config-reset">Reset to defaults</button>
+      <span class="spacer"></span>
+      <span id="config-dirty" class="muted hidden">Unsaved changes</span>
+      <button id="config-cancel">Cancel</button>
+      <button class="primary" id="config-save">Save</button>
+    </footer>
+  </div>
+</div>
+
+<!-- Crawls modal -->
+<div class="modal hidden" id="modal-crawls">
+  <div class="modal-box">
+    <header><h2>Saved crawls</h2><button class="close" data-close="modal-crawls" aria-label="Close"><i data-ic="x"></i></button></header>
+    <div class="modal-body" id="crawls-body"></div>
+  </div>
+</div>
+
+<!-- List mode modal -->
+<div class="modal hidden" id="modal-list">
+  <div class="modal-box">
+    <header><h2>List mode — URLs to crawl</h2><button class="close" data-close="modal-list" aria-label="Close"><i data-ic="x"></i></button></header>
+    <div class="modal-body">
+      <p class="muted" style="margin:0 0 8px">Paste one URL per line (a list from Search Console, a sitemap export, a spreadsheet column…). Lines without a domain are ignored and highlighted below.</p>
+      <textarea id="list-urls" rows="16" placeholder="https://www.example.com/page-1&#10;https://www.example.com/page-2" spellcheck="false"></textarea>
+      <div id="list-info" class="muted" style="margin-top:6px">0 URLs</div>
+    </div>
+    <footer><span class="spacer"></span><button class="primary" data-close="modal-list">Done</button></footer>
+  </div>
+</div>
+
+<!-- Export centre -->
+<div class="modal hidden" id="modal-export">
+  <div class="modal-box">
+    <header><h2>Export centre</h2><button class="close" data-close="modal-export" aria-label="Close"><i data-ic="x"></i></button></header>
+    <div class="modal-body">
+      <p class="muted" style="margin:0 0 10px">Tick what to include. Each item becomes one or more sheets (Excel) or CSV files (zip, grouped in folders).</p>
+      <div id="export-parts"></div>
+      <div style="display:flex;gap:16px;align-items:center;margin-top:12px;flex-wrap:wrap">
+        <label><input type="radio" name="exfmt" value="xlsx" checked> One Excel workbook (with a Contents sheet)</label>
+        <label><input type="radio" name="exfmt" value="zip"> Zip of CSV files</label>
+        <label title="By default 'Every non-empty filter' includes only issue filters; tick to add plain filters like Internal → HTML too"><input type="checkbox" id="ex-allfilters"> include plain filters as well</label>
+      </div>
+      <p class="muted" id="export-estimate" style="margin:10px 0 0"></p>
+    </div>
+    <footer>
+      <button id="ex-select-issues">Issues pack</button>
+      <button id="ex-select-all">Everything</button>
+      <span class="spacer"></span>
+      <button class="primary" id="ex-download"><i data-ic="download"></i>Download</button>
+    </footer>
+  </div>
+</div>
+
+<!-- Fixes review queue -->
+<div class="modal hidden" id="modal-fixes">
+  <div class="modal-box xwide">
+    <header>
+      <h2>Fixes</h2>
+      <span id="fx-progress" class="muted"></span>
+      <span class="spacer"></span>
+      <select id="fx-status"><option value="">All statuses</option><option value="proposed">Proposed</option><option value="approved">Approved</option><option value="rejected">Rejected</option><option value="pushed">Pushed</option><option value="failed">Failed</option></select>
+      <select id="fx-kind"><option value="">All kinds</option></select>
+      <input id="fx-q" type="search" placeholder="Search URL / text">
+      <button class="close" data-close="modal-fixes" aria-label="Close"><i data-ic="x"></i></button>
+    </header>
+    <div class="modal-body" id="fixes-body"></div>
+    <footer>
+      <button id="fx-approve-shown">Approve shown</button>
+      <button id="fx-reject-shown">Reject shown</button>
+      <button id="fx-delete-shown">Delete shown</button>
+      <a class="btn" id="fx-export" href="/api/fixes/export?format=xlsx"><i data-ic="download"></i>Export</a>
+      <span class="spacer"></span>
+      <label>Push approved to <select id="fx-target"></select></label>
+      <input id="fx-confirm" type="text" class="hidden" placeholder="type the target name to confirm LIVE">
+      <button class="primary" id="fx-push">Push</button>
+    </footer>
+  </div>
+</div>
+
+<!-- Compare (change detection) -->
+<div class="modal hidden" id="modal-compare">
+  <div class="modal-box xwide">
+    <header>
+      <h2>Compare</h2>
+      <label>Before <select id="cmp-a"></select></label>
+      <label>After <select id="cmp-b"></select></label>
+      <button class="primary" id="cmp-run">Compare</button>
+      <a class="btn hidden" id="cmp-export" href="#"><i data-ic="download"></i>Excel</a>
+      <span class="spacer"></span>
+      <button class="close" data-close="modal-compare" aria-label="Close"><i data-ic="x"></i></button>
+    </header>
+    <div class="modal-body" id="compare-body"><div class="muted pad">Pick two crawls of the same site and press Compare. The newest two are preselected.</div></div>
+  </div>
+</div>
+
+<!-- Visualisations -->
+<div class="modal hidden" id="modal-viz">
+  <div class="modal-box xwide">
+    <header>
+      <h2>Visualise</h2>
+      <div class="cmp-tabs" style="margin:0;border:0" id="viz-tabs">
+        <button data-v="tree" class="active">Crawl tree</button><button data-v="dirtree">Directory tree</button>
+        <button data-v="force">Force-directed crawl</button><button data-v="dirforce">Force-directed directory</button>
+        <button data-v="anchor">Anchor text cloud</button><button data-v="body">Body text cloud</button>
+      </div>
+      <span class="spacer"></span>
+      <label class="muted" id="viz-limit-wrap">Nodes <select id="viz-limit"><option>200</option><option selected>500</option><option>1000</option><option>2000</option></select></label>
+      <button id="viz-export" title="Download as SVG"><i data-ic="download"></i>SVG</button>
+      <button class="close" data-close="modal-viz" aria-label="Close"><i data-ic="x"></i></button>
+    </header>
+    <div class="modal-body" id="viz-body" style="padding:0;position:relative;overflow:hidden">
+      <div id="viz-legend"><span><i style="background:var(--ok)"></i>Indexable</span><span><i style="background:var(--muted)"></i>Non-indexable</span><span><i style="background:var(--warning)"></i>3xx</span><span><i style="background:var(--issue)"></i>4xx / 5xx</span><span class="muted" id="viz-info"></span></div>
+      <svg id="viz-svg" width="100%" height="100%"></svg>
+      <div id="viz-tip" class="hidden"></div>
+    </div>
+  </div>
+</div>
+
+<!-- XML sitemap generation -->
+<div class="modal hidden" id="modal-sitemap">
+  <div class="modal-box">
+    <header><h2>XML sitemap</h2><button class="close" data-close="modal-sitemap" aria-label="Close"><i data-ic="x"></i></button></header>
+    <div class="modal-body">
+      <p class="muted" style="margin:0 0 10px">Built from the open crawl. By default: internal HTML pages that returned 2xx and are indexable, not canonicalised to another URL and not paginated.</p>
+      <div class="cfg-grid" id="sm-opts">
+        <label><input type="checkbox" data-o="include_noindex"><span>Include noindex pages</span></label>
+        <label><input type="checkbox" data-o="include_canonicalised"><span>Include canonicalised pages</span></label>
+        <label><input type="checkbox" data-o="include_paginated"><span>Include paginated pages (rel=prev)</span></label>
+        <label><input type="checkbox" data-o="include_pdfs"><span>Include PDFs</span></label>
+        <label><input type="checkbox" data-o="lastmod" checked><span>lastmod (Last-Modified header, else crawl time)</span></label>
+        <label><input type="checkbox" data-o="priority" checked><span>priority by crawl depth (1.0 → 0.5)</span></label>
+        <label><input type="checkbox" data-o="changefreq" checked><span>changefreq by crawl depth (daily / weekly / monthly)</span></label>
+        <label><input type="checkbox" data-o="images"><span>Image sitemap entries (internal images per page)</span></label>
+      </div>
+      <div class="cfg-warn ok" id="sm-preview" style="margin-top:12px">Counting…</div>
+    </div>
+    <footer><span class="spacer"></span><a class="btn primary" id="sm-download" href="#"><i data-ic="download"></i>Download sitemap.xml</a></footer>
+  </div>
+</div>
+
+<!-- Site audit dashboard -->
+<div class="modal hidden" id="modal-audit">
+  <div class="modal-box xwide">
+    <header>
+      <h2>Site Audit</h2><span class="muted" id="audit-site"></span>
+      <span class="spacer"></span>
+      <a class="btn" id="audit-md" href="/api/audit/report.md"><i data-ic="download"></i>Report (Markdown)</a>
+      <button id="audit-refresh" title="Recalculate"><i data-ic="refresh-cw"></i></button>
+      <button class="close" data-close="modal-audit" aria-label="Close"><i data-ic="x"></i></button>
+    </header>
+    <div class="modal-body" id="audit-body"></div>
+  </div>
+</div>
+
+<!-- Scheduled crawls -->
+<div class="modal hidden" id="modal-schedules">
+  <div class="modal-box wide">
+    <header><h2>Scheduled crawls</h2><span class="spacer"></span><button class="primary" id="sch-new"><i data-ic="plus"></i>New schedule</button><button class="close" data-close="modal-schedules" aria-label="Close"><i data-ic="x"></i></button></header>
+    <div class="modal-body" id="schedules-body"></div>
+    <footer><span class="muted" id="sch-note">Schedules run while the app is open. To run them when it is closed: <code>cli.py schedule install-task</code> in the app folder (Windows Task Scheduler, every 15 minutes).</span></footer>
+  </div>
+</div>
+
+<!-- Usage & costs -->
+<div class="modal hidden" id="modal-usage">
+  <div class="modal-box wide">
+    <header>
+      <h2>Usage &amp; costs</h2>
+      <div class="cmp-tabs" style="margin:0;border:0"><button data-u="cumulative" class="active">Cumulative</button><button data-u="runs">Per run</button><button data-u="prices">Prices</button></div>
+      <span class="spacer"></span>
+      <button class="close" data-close="modal-usage" aria-label="Close"><i data-ic="x"></i></button>
+    </header>
+    <div class="modal-body" id="usage-body"></div>
+  </div>
+</div>
+
+<!-- Report viewer -->
+<div class="modal hidden" id="modal-report">
+  <div class="modal-box wide">
+    <header><h2 id="report-title">Report</h2><span class="spacer"></span><a id="report-csv" class="btn" href="#">CSV</a><a id="report-xlsx" class="btn" href="#">Excel</a><button class="close" data-close="modal-report" aria-label="Close"><i data-ic="x"></i></button></header>
+    <div class="modal-body" id="report-body"></div>
+  </div>
+</div>
+
+<script src="/ui/vendor/node_modules/tabulator-tables/dist/js/tabulator.min.js"></script>
+<script src="/ui/vendor/node_modules/d3/dist/d3.min.js"></script>
+<script src="/ui/vendor/node_modules/d3-cloud/build/d3.layout.cloud.js"></script>
+<script src="/ui/icons.js"></script>
+<script src="/ui/app.js"></script>
+</body>
+</html>

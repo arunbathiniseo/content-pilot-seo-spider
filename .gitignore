@@ -1,0 +1,27 @@
+# environments and dependencies
+.venv/
+ui/vendor/node_modules/
+__pycache__/
+*.pyc
+
+# crawl data (contains full HTML of crawled sites)
+crawls/
+tests/smoke.db*
+*.db
+*.db-wal
+*.db-shm
+
+# local
+.playwright-mcp/
+*.log
+.DS_Store
+Thumbs.db
+
+# local settings (API keys, connector passwords)
+settings.json
+
+# runtime
+.port
+exports/
+usage.json
+schedules.json

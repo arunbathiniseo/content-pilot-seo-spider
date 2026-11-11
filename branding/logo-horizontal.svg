@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 160" width="720" height="160" role="img" aria-label="Content Pilot Spider">
+  <g transform="translate(16 16) scale(0.25)">
+    <rect width="512" height="512" rx="72" fill="#15171a"/>
+    <g fill="none" stroke="#f4f5f7" stroke-width="26" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M212 214 L150 158 L96 112"/><path d="M202 248 L116 232 L54 242"/><path d="M206 284 L136 322 L72 374"/><path d="M232 302 L198 366 L172 432"/>
+      <path d="M300 214 L362 158 L416 112"/><path d="M310 248 L396 232 L458 242"/><path d="M306 284 L376 322 L440 374"/><path d="M280 302 L314 366 L340 432"/>
+    </g>
+    <g fill="#f4f5f7">
+      <circle cx="96" cy="112" r="21"/><circle cx="54" cy="242" r="21"/><circle cx="72" cy="374" r="21"/><circle cx="172" cy="432" r="21"/>
+      <circle cx="416" cy="112" r="21"/><circle cx="458" cy="242" r="21"/><circle cx="440" cy="374" r="21"/><circle cx="340" cy="432" r="21"/>
+    </g>
+    <circle cx="256" cy="256" r="62" fill="#2ea043"/>
+  </g>
+  <text x="170" y="84" font-family="'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif" font-size="56" font-weight="600" letter-spacing="-1.6" fill="#15171a">Content Pilot Spider</text>
+  <text x="172" y="122" font-family="'IBM Plex Mono', Consolas, monospace" font-size="17" font-weight="500" letter-spacing="3.5" fill="#1f7a3f">SEO CRAWLER · LOCAL · OPEN SOURCE</text>
+</svg>

@@ -140,7 +140,8 @@ Nothing else needs installing: Python and everything the app uses are inside the
 runs without installing is on the same release page.
 
 - The installer is not code-signed yet, so Windows SmartScreen shows "Windows protected your PC" the first time.
-  Choose **More info**, then **Run anyway**.
+  Choose **More info**, then **Run anyway**. Signing is on its way: see the
+  [code signing policy](#code-signing-policy).
 - PageSpeed audits in the installed app use the PageSpeed Insights API with your own free key. Local Lighthouse
   audits need the from-source setup below.
 - Your crawls and settings are kept in the installation folder and are left in place if you uninstall.
@@ -209,6 +210,23 @@ claude mcp add --transport http content-pilot-spider http://127.0.0.1:7743/mcp
 - Text from crawled sites is treated as text everywhere: in the grid, in reports and in CSV and XLSX exports.
 - Pages are rendered in a sandboxed headless Chromium.
 - AI and third-party data features are off until you add your own key, and they talk only to the provider you chose.
+
+## Code signing policy
+
+Content Pilot Spider uses the [SignPath Foundation](https://signpath.org) for code signing and has applied to its
+programme for open-source projects. Once the project is accepted, the Windows installer on the
+[releases page](https://github.com/arunbathiniseo/content-pilot-seo-spider/releases) will be signed: free code
+signing provided by [SignPath.io](https://about.signpath.io), certificate by
+[SignPath Foundation](https://signpath.org). Until then the installer is unsigned and this section says so.
+
+- **What is signed**: only the installer built from this repository's source by the
+  [Build Windows installer](.github/workflows/build-windows.yml) workflow on GitHub Actions. Nothing built on a
+  personal computer is signed.
+- **Committers and reviewers**: [Arun Bathini](https://github.com/arunbathiniseo). Changes from anyone else come
+  in as pull requests and are reviewed before they are merged.
+- **Approvers**: [Arun Bathini](https://github.com/arunbathiniseo) approves each release before it is signed.
+- **Privacy**: this program will not transfer any information to other networked systems unless specifically
+  requested by the user or the person installing or operating it. See [Privacy](#privacy) for the detail.
 
 ## Documentation
 

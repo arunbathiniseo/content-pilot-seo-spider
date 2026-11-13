@@ -1,0 +1,78 @@
+# Builds the Windows download from this repository's source: the portable zip and the Inno Setup installer.
+# Runs when a version tag (v1.2.3) is pushed, or by hand from the Actions tab. The two files are kept as build
+# artifacts; nothing is published to a release by this workflow.
+#
+# Code signing: the installer built here is the file that gets signed. The signing step (SignPath, see
+# "Code signing policy" in the README) is added below the build once the project's signing account exists.
+name: Build Windows installer
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-2022
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Python packages
+        shell: pwsh
+        run: |
+          python -m venv .venv
+          .venv\Scripts\python.exe -m pip install --disable-pip-version-check -r requirements.txt
+
+      - name: Interface libraries
+        working-directory: ui/vendor
+        run: npm ci
+
+      # packaging\build.py bundles the official embeddable runtime; it must be the same version as .venv
+      - name: Python embeddable runtime
+        shell: pwsh
+        run: |
+          $v = & .venv\Scripts\python.exe -c "import platform; print(platform.python_version())"
+          Invoke-WebRequest "https://www.python.org/ftp/python/$v/python-$v-embed-amd64.zip" -OutFile "$env:RUNNER_TEMP\python-embed.zip"
+          "Python $v"
+
+      - name: Inno Setup
+        shell: pwsh
+        run: choco install innosetup --no-progress -y
+
+      - name: Portable zip
+        shell: pwsh
+        run: .venv\Scripts\python.exe packaging\build.py --python-embed "$env:RUNNER_TEMP\python-embed.zip"
+
+      - name: Installer
+        shell: pwsh
+        run: .venv\Scripts\python.exe packaging\build.py --python-embed "$env:RUNNER_TEMP\python-embed.zip" --iscc "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+
+      - name: Checksums
+        shell: pwsh
+        run: Get-FileHash dist\ContentPilotSpider-*.exe, dist\ContentPilotSpider-*.zip -Algorithm SHA256 | Format-List Path, Hash
+
+      - name: Keep the installer (unsigned)
+        uses: actions/upload-artifact@v4
+        with:
+          name: installer-unsigned
+          path: dist/ContentPilotSpider-Setup-*.exe
+          if-no-files-found: error
+
+      - name: Keep the portable zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: portable-zip
+          path: dist/ContentPilotSpider-*-portable.zip
+          if-no-files-found: error
